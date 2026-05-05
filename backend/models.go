@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 type weatherData struct {
 	Name     string `json:"name"`
@@ -28,4 +31,9 @@ type weatherData struct {
 type cacheItem struct {
 	data      map[string]interface{}
 	expiresAt time.Time
+}
+
+type WeatherCache struct {
+	data  map[string]cacheItem
+	mutex sync.RWMutex
 }

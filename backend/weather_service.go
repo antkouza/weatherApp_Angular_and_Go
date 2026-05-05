@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	// "fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -9,8 +10,9 @@ import (
 	"time"
 )
 
-func query(city string) (weatherData, error) {
+func fetchWeather(city string) (weatherData, error) {
 	escapeCity := url.QueryEscape(city)
+	// fmt.Printf("Debug: City: %s\n", city)
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
 	url := "http://api.openweathermap.org/data/2.5/weather?q=" + escapeCity + "&APPID=" + apiKey
@@ -27,6 +29,7 @@ func query(city string) (weatherData, error) {
 		return weatherData{}, err
 	}
 
+	// fmt.Printf("Debug: City: %s\n Raw Response: %s\n", city, string(response))
 	data := weatherData{}
 	err = json.Unmarshal(response, &data)
 	return data, err

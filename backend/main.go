@@ -5,21 +5,19 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
 )
 
-var weatherCache = make(map[string]cacheItem)
-var cacheMutex sync.Mutex // Prevents crashes if two users search at once
+const allowedOrigin = "http://localhost:4200" // allow frontend requests
+var cache = NewWeatherCache()
 
 func main() {
     godotenv.Load()
     port := ":8080"
 
-    // Print to console before starting server
-    fmt.Println("Server is running on port" + port)
+     fmt.Println("Server is running on port" + port)
 
     http.HandleFunc("/weather", weatherHandler)
     http.HandleFunc("/weather/", weatherHandler)
@@ -28,69 +26,40 @@ func main() {
 }
 
 func weatherHandler(w http.ResponseWriter, r *http.Request) {
-
-    fmt.Printf("Request: %s %s | Query: %s\n",    r.Method,    r.URL.Path,    r.URL.RawQuery,    )
-
-    w.Header().Set("Access-Control-Allow-Origin", "*")
+	fmt.Printf("Request: %s %s | Query: %s\n", r.Method, r.URL.Path, r.URL.RawQuery)
+ 
+	w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Content-Type", "application/json")
 
-	cityName := getCityName(r)
-	if cityName == "" {
-		http.Error(w, "City required", http.StatusBadRequest)
-		return
-	}
+    cityName := strings.ToLower(getCityName(r))
 
-	// 1. Check Cache
-	cacheMutex.Lock()
-	item, found := weatherCache[strings.ToLower(cityName)]
-	cacheMutex.Unlock()
-
-    if found {
-        if time.Now().Before(item.expiresAt) {
-            fmt.Printf("Cache HIT: %s\n", cityName)
-            w.Header().Set("X-Cache", "HIT")
-            json.NewEncoder(w).Encode(item.data)
-            return
-        } 
-        
-        // logic: Found but expired? Delete it!
-        cacheMutex.Lock()
-        delete(weatherCache, strings.ToLower(cityName))
-        cacheMutex.Unlock()
-        fmt.Printf("Cache EXPIRED: %s - Fetch new data\n", cityName)
+    if cityName == "" {
+        http.Error(w, "City required", http.StatusBadRequest)
+        return
     }
 
-	// 2. Fetch from API
-	wdata, err := query(cityName)
-	if err != nil || wdata.Name == "" {
-		http.Error(w, "Weather data not found", http.StatusNotFound)
-		return
-	}
+    // Cache check
+    if data, ok := cache.Get(cityName); ok {
+        fmt.Printf("Cache FROM_CACHE: %s\n", cityName)
+        w.Header().Set("X-Cache", "FROM_CACHE") // Optional: custom header to inform the client/frontend that data was served from local memory
+        json.NewEncoder(w).Encode(data)
+        return
+    }
 
-	// 3. Format and Cache
-	response := formatWeatherResponse(wdata)
-    fmt.Printf("Response for %s: %+v\n", cityName, response)
+    // Fetch with openweathermap API
+    wdata, err := fetchWeather(cityName)
+    if err != nil || wdata.Name == "" {
+		fmt.Printf("cityName akouza: n"  )
+        http.Error(w, "Weather data not found", http.StatusNotFound)
+        return
+    }
 
-	cacheMutex.Lock()
-	weatherCache[strings.ToLower(cityName)] = cacheItem{
-		data:      response,
-		expiresAt: time.Now().Add(1 * time.Minute),
-	}
-	cacheMutex.Unlock()
+    response := formatWeatherResponse(wdata)
 
-	w.Header().Set("X-Cache", "MISS")
-	json.NewEncoder(w).Encode(response)
-}
+    // Cache set
+    cache.Set(cityName, response, 1*time.Minute)
 
-func getCityName(r *http.Request) string {
-	cityName := r.URL.Query().Get("city")
-	if cityName != "" {
-		return cityName
-	}
-
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	if len(parts) > 1 { // /weather/London -> parts is ["weather", "London"]
-		return parts[len(parts)-1]
-	}
-	return ""
+    w.Header().Set("X-Cache", "FROM_EXT_API") // Optional: custom header to inform the client that a real API call was required
+    json.NewEncoder(w).Encode(response)
 }
