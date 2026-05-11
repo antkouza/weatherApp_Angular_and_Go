@@ -2,12 +2,16 @@
 
 ## 📌 Introduction
 
-This project is a simple full-stack Weather Application that allows users to search for weather information by city.
-
+This project is a simple full-stack Weather Application that allows users to search for weather information:
+- City Search: Search for weather data by entering any city name.
+- Location-Based Weather: Fetch real-time weather using the browser's Geolocation API.\
+\
 The frontend is built with **Angular**, providing a user-friendly interface, while the backend is implemented in **Go**, acting as a lightweight API server that fetches real-time weather data from the OpenWeather API.\
 Moreover, the backend uses a simple **in-memory cache** to cache entries to achieve faster responses for repeated requests and reduced external API calls. Entries expire after a few minutes.
 
-<img width="208" height="315" alt="image" src="https://github.com/user-attachments/assets/ed8759c5-c659-47a4-a372-2f27f0c4d9dd" />
+<img width="362" height="491" alt="image" src="https://github.com/user-attachments/assets/c112243e-188b-4cd4-91fb-a1b6725793f5" />
+
+
 
 ## 🚀 Key Technologies
 
@@ -79,7 +83,7 @@ The frontend will start on:
 http://localhost:4200.
 
 ## 🔄 How It Works
-User enters a city in the Angular UI.\
+Users can retrieve weather data by searching for a specific city or by using the browser's geolocation to fetch data for their current location.\
 Frontend sends a GET request: http://localhost:8080/weather?city=tokyo to backend.
 
 Go backend:
