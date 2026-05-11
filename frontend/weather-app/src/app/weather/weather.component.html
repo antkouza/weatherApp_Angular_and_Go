@@ -7,11 +7,11 @@
       (keyup.enter)="getWeather()"
       placeholder="City Name..."
     />
-    <button (click)="getWeather()" [disabled]="loading">
+    <button class="search-btn" (click)="getWeather()" [disabled]="loading">
       {{ loading ? "..." : "Search" }}
     </button>
     <!-- current location -->
-    <button (click)="getCurrentLocation()" title="Use Current Location">
+    <button class="current-location-btn" (click)="getCurrentLocation()" title="Use Current Location">
       <span class="material-symbols-outlined">my_location</span>
     </button>
   </div>
