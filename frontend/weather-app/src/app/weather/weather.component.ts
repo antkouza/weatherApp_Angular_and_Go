@@ -39,4 +39,43 @@ export class WeatherComponent {
       },
     });
   }
+
+  getCurrentLocation() {
+    if (navigator.geolocation) {
+      this.loading = true;
+      this.errorMessage = ''; // Clear previous errors
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          // Call the new service method we just created
+          this.weatherService.getWeatherByCoords(lat, lon).subscribe({
+            next: (data) => {
+              this.weatherData = data;
+              this.loading = false;
+              this.city = data.city; // Optional: update search box with the detected city name
+            },
+            error: (err) => {
+              this.errorMessage =
+                'Could not fetch weather for your coordinates.';
+              this.loading = false;
+            },
+          });
+        },
+        (error) => {
+          this.loading = false;
+          // Handle common geolocation errors
+          if (error.code === error.PERMISSION_DENIED) {
+            this.errorMessage = 'Please allow location access in your browser.';
+          } else {
+            this.errorMessage = 'Location unavailable.';
+          }
+        }
+      );
+    } else {
+      this.errorMessage = 'Geolocation is not supported by your browser.';
+    }
+  }
 }

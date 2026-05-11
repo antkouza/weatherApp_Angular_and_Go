@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	// "fmt"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,9 +12,10 @@ import (
 
 func fetchWeather(city string) (weatherData, error) {
 	escapeCity := url.QueryEscape(city)
-	// fmt.Printf("Debug: City: %s\n", city)
+	fmt.Printf("Debug: City: %s\n", city)
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
+	fmt.Printf("Debug: apiKey: %s\n", apiKey)
 	url := "http://api.openweathermap.org/data/2.5/weather?q=" + escapeCity + "&APPID=" + apiKey
 
 	resp, err := http.Get(url)
@@ -29,7 +30,33 @@ func fetchWeather(city string) (weatherData, error) {
 		return weatherData{}, err
 	}
 
-	// fmt.Printf("Debug: City: %s\n Raw Response: %s\n", city, string(response))
+	fmt.Printf("Debug: City: %s\n Raw Response: %s\n", city, string(response))
+	data := weatherData{}
+	err = json.Unmarshal(response, &data)
+	return data, err
+}
+
+func fetchWeatherByCoordinates(lat, lon string) (weatherData, error) {
+	escapedLat := url.QueryEscape(lat)
+	escapedLon := url.QueryEscape(lon)
+	fmt.Printf("Debug: Coordinates: lat=%s lon=%s\n", lat, lon)
+
+	apiKey := os.Getenv("WEATHER_API_KEY")
+	fmt.Printf("Debug: apiKey: %s\n", apiKey)
+	url := "http://api.openweathermap.org/data/2.5/weather?lat=" + escapedLat + "&lon=" + escapedLon + "&APPID=" + apiKey
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return weatherData{}, err
+	}
+	defer resp.Body.Close()
+
+	response, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return weatherData{}, err
+	}
+
+	fmt.Printf("Debug: Coordinates: lat=%s lon=%s\n Raw Response: %s\n", lat, lon, string(response))
 	data := weatherData{}
 	err = json.Unmarshal(response, &data)
 	return data, err

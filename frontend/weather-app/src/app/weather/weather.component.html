@@ -10,6 +10,10 @@
     <button (click)="getWeather()" [disabled]="loading">
       {{ loading ? "..." : "Search" }}
     </button>
+    <!-- current location -->
+    <button (click)="getCurrentLocation()" title="Use Current Location">
+      <span class="material-symbols-outlined">my_location</span>
+    </button>
   </div>
 
   <div *ngIf="loading">
