@@ -79,4 +79,16 @@ export class WeatherComponent {
       this.errorMessage = 'Geolocation is not supported by your browser.';
     }
   }
+
+  getWindDirection(deg: number | undefined): string {
+    if (deg === undefined) return '';
+
+    // Define directions in clockwise order starting from North
+    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+    // Split 360 into 8 chunks of 45 degrees
+    const index = Math.round(deg / 45) % 8;
+
+    return directions[index];
+  }
 }

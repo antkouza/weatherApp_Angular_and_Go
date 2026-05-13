@@ -11,7 +11,11 @@
       {{ loading ? "..." : "Search" }}
     </button>
     <!-- current location -->
-    <button class="current-location-btn" (click)="getCurrentLocation()" title="Use Current Location">
+    <button
+      class="current-location-btn"
+      (click)="getCurrentLocation()"
+      title="Use Current Location"
+    >
       <span class="material-symbols-outlined">my_location</span>
     </button>
   </div>
@@ -58,11 +62,24 @@
         <b>{{ weatherData.humidity }}%</b>
       </div>
       <div class="detail-item">
-        <span class="material-symbols-outlined" style="color: #4e0b26"
+        <span class="material-symbols-outlined" style="color: #a81852"
           >air</span
         >
         <span> Wind: </span>
         <b>{{ weatherData.wind?.speed }} m/s</b>
+
+        <div style="display: flex; align-items: center; gap: 4px">
+          {{ getWindDirection(weatherData.wind?.deg) }}
+          <span
+            class="material-symbols-outlined"
+            [style.color]="'#a81852'"
+            [style.transform]="
+              'rotate(' + (weatherData.wind?.deg || 0) + 'deg)'
+            "
+          >
+            north
+          </span>
+        </div>
       </div>
     </div>
   </div>
