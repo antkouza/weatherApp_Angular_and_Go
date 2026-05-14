@@ -9,7 +9,9 @@ This project is a simple full-stack Weather Application that allows users to sea
 The frontend is built with **Angular**, providing a user-friendly interface, while the backend is implemented in **Go**, acting as a lightweight API server that fetches real-time weather data from the OpenWeather API.\
 Moreover, the backend uses a simple **in-memory cache** to cache entries to achieve faster responses for repeated requests and reduced external API calls. Entries expire after a few minutes.
 
+Containerized both frontend/backend application; managed via Docker Compose.\
 <img width="362" height="491" alt="image" src="https://github.com/user-attachments/assets/c112243e-188b-4cd4-91fb-a1b6725793f5" />
+<img width="362" height="491" alt="image" src="https://github.com/user-attachments/assets/3c39336d-36f8-46bd-b941-ee5d4dd45284" />
 
 
 
@@ -82,6 +84,21 @@ ng serve (run app)
 The frontend will start on:
 http://localhost:4200.
 
+🐳 Containerization (Docker)
+If you wish to avoid previous installations, then The fastest way to run the entire stack is using Docker Compose. This will automatically build the images and start both the Go backend container and Angular frontend container.
+Launch the containers
+```bash
+docker compose up --build
+```
+To ensure both the containers are running, run:
+```bash
+docker compose ps
+NAMES STATUS
+go-weather-frontend-1                        Up 20 seconds
+go-weather-backend-1                         Up 21 seconds
+```
+Once started, access: http://localhost:4200
+
 ## 🔄 How It Works
 Users can retrieve weather data by searching for a specific city or by using the browser's geolocation to fetch data for their current location.\
 Frontend sends a GET request: http://localhost:8080/weather?city=tokyo to backend.
@@ -116,13 +133,16 @@ ng test
 weatherApp_Angular_and_Go (GitHub Repo)
 ```bash
 ├── backend/
+│ ├── Dockerfile
 │ ├── models.go
 │ ├── weather.go
 │ └── weather_service.go
 ├── frontend/
+│ ├── Dockerfile
 │ └── weather-app/
 │ ├── src/
 │ └── package.json
 └── .gitignore
+├── docker-compose.yml
 └── README.md
 ```
