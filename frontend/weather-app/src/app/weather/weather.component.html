@@ -69,12 +69,12 @@
         <b>{{ weatherData.wind?.speed }} m/s</b>
 
         <div style="display: flex; align-items: center; gap: 4px">
-          {{ getWindDirection(weatherData.wind?.deg) }}
+          {{ weatherData.wind?.deg | windDirection }}
           <span
             class="material-symbols-outlined"
             [style.color]="'#a81852'"
             [style.transform]="
-              'rotate(' + (weatherData.wind?.deg || 0) + 'deg)'
+              'rotate(' + (((weatherData.wind?.deg || 0)+ 180) % 360) + 'deg)'
             "
           >
             north
